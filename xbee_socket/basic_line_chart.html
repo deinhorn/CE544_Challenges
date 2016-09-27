@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+</head>
+<body>
+    <script type="text/javascript">
+    function mygraph() {
+
+        var dps = []; // dataPoints
+
+        var chart = new CanvasJS.Chart("chartContainer",{
+            title :{
+                text: "Live Random Data"
+            },          
+            data: [{
+                type: "line",
+                dataPoints: dps 
+            }]
+        });
+
+        var xVal = 0;
+        var yVal = 100; 
+        var updateInterval = 100;
+        var dataLength = 500; // number of dataPoints visible at any point
+
+        var updateChart = function (count) {
+            count = count || 1;
+            // count is number of times loop runs to generate random dataPoints.
+            
+            for (var j = 0; j < count; j++) {   
+                yVal = yVal +  Math.round(5 + Math.random() *(-5-5));
+                dps.push({
+                    x: xVal,
+                    y: yVal
+                });
+                xVal++;
+            };
+            if (dps.length > dataLength)
+            {
+                dps.shift();                
+            }
+            
+            chart.render();     
+
+        };
+
+        // generates first set of dataPoints
+        updateChart(dataLength); 
+
+        // update chart after specified time. 
+        setInterval(function(){updateChart()}, updateInterval); 
+
+    }
+    </script>
+    <script type="text/javascript" src="C:/Users/mlkro/Desktop/ClassGitRepos/EC544Maria'sRepo/xbee_socket/canvasjs-1.9.1/canvasjs.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+    window.onload = mygraph;
+  var socket = io();
+  socket.on('average update', function(msg){
+    //updateChart(10);
+    //$('#messages').append($('<li>').text(msg));
+    document.getElementById('avg').innerHTML = "current avg :" + msg;
+    mygraph();
+  });
+    socket.on('node1 update', function(msg){
+    //updateChart(10);
+    //$('#messages').append($('<li>').text(msg));
+    document.getElementById('node1').innerHTML = "node1 temp:" + msg;
+  });
+    socket.on('node2 update', function(msg){
+    //updateChart(10);
+    //$('#messages').append($('<li>').text(msg));
+    document.getElementById('node2').innerHTML = "node2 temp:" + msg;
+  });
+        socket.on('node3 update', function(msg){
+    //updateChart(10);
+    //$('#messages').append($('<li>').text(msg));
+    document.getElementById('node3').innerHTML = "node3 temp:" + msg;
+  });
+  socket.on('node4 update', function(msg){
+    //updateChart(10);
+    //$('#messages').append($('<li>').text(msg));
+    document.getElementById('node4').innerHTML = "node4 temp:" + msg;
+  });
+  /*
+  socket.on('chat message', function(msg){
+    $('#messages').append($('<li>').text(msg));
+  });
+      socket.on('chat message', function(msg){
+    $('#messages').append($('<li>').text(msg));
+  });
+        socket.on('chat message', function(msg){
+    $('#messages').append($('<li>').text(msg));
+  });
+  */
+</script>
+    <div id="chartContainer" style="height: 300px; width:100%;">
+    </div>
+    <div id = "avg">current avg :</div> 
+    <div id = "node1">node1 temp:</div>
+    <div id = "node2">node2 temp:</div>
+    <div id = "node3">node3 temp:</div>
+    <div id = "node4">node4 temp:</div>
+</body>
+</html>
