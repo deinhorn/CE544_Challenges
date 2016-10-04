@@ -1,4 +1,6 @@
-var SerialPort = require("serialport");
+var serialport = require("serialport"),
+SerialPort = serialport.SerialPort;
+
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -33,7 +35,7 @@ var periodicFunction = function(){
 var portName = process.argv[2],
 portConfig = {
 	baudRate: 9600,
-	parser: SerialPort.parsers.readline("\n")
+	parser: serialport.parsers.readline("\n")
 };
 var sp;
 sp = new SerialPort(portName, portConfig);
@@ -41,6 +43,8 @@ sp = new SerialPort(portName, portConfig);
 app.get('/', function(req, res){
   res.sendFile(__dirname +'/index.html');
 });
+
+io.emit('initialize');
 
 io.on('connection', function(socket){
   io.emit('open');
@@ -62,14 +66,27 @@ sp.on("open", function () {
     var num = data.split(".");
     var node = data.split(":");
     //console.log('test sum = ' + testSum);
-    currentData[node[1]-1] = num[0];
+    if(((+currentData[node[1]-1] + 50) > +num[0]) && ((+currentData[node[1]-1]- +50) < +num[0])){ 
+	currentData[node[1]-1] = num[0];
+	}
+    else if((+currentData[node[1]-1]==0) &&(+currentData[node[1]-1]+100 > +num[0])&&(+num[0] > 0)){
+	currentData[node[1]-1] = num[0];
+	}
+/*
+    else if (isNan(+currentData[node[1]-1]) &&(+currentData[node[1]-1]+100 > +num[0])&&(+num[0] > 0)){
+        currentData[node[1]-1] = num[0];
+        }    
+*/
+    else{
+	console.log('*****Received improper data: ' + num[0]+" : CurrentData: "+(currentData[node[1]-1]+50));
+    }
     //console.log('current data index '+ node[1] + 'value is ' + currentData[node[1]]);
     var sum = 0;
     var avg = 0;
     var i = 0;
     var divisor = 4;
     for(i=0; i< 4;i++){
-      console.log(currentData[i]);
+      //console.log(currentData[i]);
       if(currentData[i] != 0){
         sum = sum + parseInt(currentData[i]);
       }
@@ -79,9 +96,9 @@ sp.on("open", function () {
     }
     avg = sum/divisor;
     console.log("recieved data packet: " + data);
-    console.log("retrieving data from node " + node[1]);
+    //console.log("retrieving data from node " + node[1]);
     //console.log('data received from node ' + node[1] + ': ' + num[0]);
-    console.log('current temp average: ' + avg);
+    //console.log('current temp average: ' + avg);
     io.emit("average update", avg);
     io.emit("node1 update", currentData[0]);
     io.emit("node2 update", currentData[1]);
