@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RoundSlider - A sample demo</title>
+    <script src="https://cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/jquery.roundslider/1.3/roundslider.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/jquery.roundslider/1.3/roundslider.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+</head>
+<body>
+<h1>Red Intensity</h1>
+<div style="float:left; width:25%" align = "center">
+Node 1:<input id="red1">
+</div>
+<div style = "float:left; width:25%" align = "center">
+Node 2:<input id="red2">
+</div>
+<div style = "float:right; width:25%" align = "center">
+Node 4:<input id="red4">
+</div>
+<div style="float:right; width:25%" align = "center">
+Node 3:<input id="red3">
+</div>
+<h1>Green Intensity</h1>
+<div style="float:left; width:25%" align = "center">
+Node 1:<input id="green1">
+</div>
+<div style = "float:left; width:25%" align = "center">
+Node 2:<input id="green2">
+</div>
+<div style = "float:right; width:25%" align = "center">
+Node 4:<input id="green4">
+</div>
+<div style="float:right; width:25%" align = "center">
+Node 3:<input id="green3">
+</div>
+<h1>Blue Intensity</h1>
+<div style="float:left; width:25%" align = "center">
+Node 1:<input id="blue1">
+</div>
+<div style = "float:left; width:25%" align = "center">
+Node 2:<input id="blue2">
+</div>
+<div style = "float:right; width:25%" align = "center">
+Node 4:<input id="blue4">
+</div>
+<div style="float:right; width:25%" align = "center">
+Node 3:<input id="blue3">
+</div>
+<div id = "test1">test</div>
+<div id = "test2">test</div>
+<div id = "test3">test</div>
+<div id = "test4">test</div> 
+<script type="text/javascript">
+var brightness1 = "0";
+var brightness2 = "0";
+var brightness3 = "0";
+var brightness4 = "0";
+var red1 = "0";
+var red2 = "0";
+var red3 = "0";
+var red4 = "0";
+var green1 = "0";
+var green2 = "0";
+var green3 = "0";
+var green4 = "0";
+var blue1 = "0";
+var blue2 = "0";
+var blue3 = "0";
+var blue4 = "0";
+var socket = io();
+
+socket.on('node1', function(msg){
+    //updateChart(10);
+    //$('#messages').append($('<li>').text(msg));
+    document.getElementById('test1').innerHTML = "node response working: " + msg;
+  });
+socket.on('node2', function(msg){
+    //updateChart(10);
+    //$('#messages').append($('<li>').text(msg));
+    document.getElementById('test2').innerHTML = "node response working: " + msg;
+  });
+socket.on('node3', function(msg){
+    //updateChart(10);
+    //$('#messages').append($('<li>').text(msg));
+    document.getElementById('test3').innerHTML = "node response working: " + msg;
+  });
+socket.on('node4', function(msg){
+    //updateChart(10);
+    //$('#messages').append($('<li>').text(msg));
+    document.getElementById('test4').innerHTML = "node response working: " + msg;
+  });
+
+//var socket = io();
+$("#red1").roundSlider({
+    radius: 75,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        red1 = args.value;
+        var message = ":"+red1+":"+":";
+        socket.emit("1:",message);
+        //document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#red2").roundSlider({
+    radius: 75,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        red2 = args.value;
+        var message = ":"+red2+":"+":";
+        socket.emit("2:",message);
+        //document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#red3").roundSlider({
+    radius: 75,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        red3 = args.value;
+        var message = ":"+red3+":"+":";
+        socket.emit("3:",message);
+        //document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#red4").roundSlider({
+    radius: 75,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        red4 = args.value;
+        var message = ":"+red4+":"+":";
+        socket.emit("4:",message);
+        //document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#green1").roundSlider({
+    radius: 75,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        green1 = args.value;
+        var message = ":"+":"+green1+":";
+        socket.emit("1:",message);
+        //document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#green2").roundSlider({
+    radius: 75,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        green2 = args.value;
+        var message = ":"+":"+green2+":";
+        socket.emit("2:",message);
+        //document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#green3").roundSlider({
+    radius: 75,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        green3 = args.value;
+        var message = ":"+":"+green3+":";
+        socket.emit("3:",message);
+        //document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#green4").roundSlider({
+    radius: 75,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        green4 = args.value;
+        var message = ":"+":"+green4+":";
+        socket.emit("4:",message);
+        //document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#blue1").roundSlider({
+    radius: 75,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        blue1 = args.value;
+        var message = ":"+":"+":"+blue1;
+        socket.emit("1:",message);
+        //document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#blue2").roundSlider({
+    radius: 75,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        blue2 = args.value;
+        var message = ":"+":"+":"+blue2;
+        socket.emit("2:",message);
+        //document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#blue3").roundSlider({
+    radius: 75,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        blue3 = args.value;
+        var message = ":"+":"+":"+blue3;
+        socket.emit("3:",message);
+        //document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#blue4").roundSlider({
+    radius: 75,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        blue4 = args.value;
+        var message = ":"+":"+":"+blue4;
+        socket.emit("4:",message);
+        //document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+</script>
+</body>
+</html>
