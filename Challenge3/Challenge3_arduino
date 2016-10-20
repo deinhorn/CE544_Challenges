@@ -1,0 +1,137 @@
+// Include Libraries
+#include <SoftwareSerial.h>
+#include <Adafruit_NeoPixel.h>
+//Setup Software Serial port for XBee communications
+SoftwareSerial XBee(2, 3); // RX, TX
+//LED Setup
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(10, 5, NEO_GRB + NEO_KHZ800);
+//Globar Variables
+int address = 0;
+String LocalAdd = "";
+void setup() {
+  
+  //Setup LEDs
+  strip.begin();
+  strip.show(); // Initialize all pixels to 'off'
+  strip.setBrightness(map(100,0,100,0,255));
+  
+  // Begin Serial Port
+  XBee.begin(9600);
+  Serial.begin(9600);
+  //Setup the Address Pins
+  pinMode(8,INPUT);
+  pinMode(9,INPUT);
+  pinMode(10,INPUT);
+  pinMode(11,INPUT);
+  pinMode(12,INPUT);
+  //Determine the Address of device
+  address = digitalRead(8)*pow(2,0)+ 
+            digitalRead(9)*pow(2,1)+ 
+            digitalRead(10)*pow(2,2)+ 
+            digitalRead(11)*pow(2,3)+ 
+            digitalRead(12)*pow(2,4);
+  LocalAdd = String(address);
+ // while(1){
+  rainbowCycle(4);
+ // }
+  colorWipe(strip.Color(0,0,0),1);
+  
+}
+int rc,gc,bc;
+void loop() {
+  // #:color#:intensity:
+  String message = "";
+  message = XBee.readStringUntil('\n');   //Wait until message with newline is found
+  XBee.flush();
+  Serial.println(message);
+  //check if poll message
+  if (message == "p"+LocalAdd){
+    delay(200*(LocalAdd.toInt()));
+    XBee.println(LocalAdd + ":" + rc + ":" + gc + ":" + bc );
+    Serial.println(LocalAdd + ":" + rc + ":" + gc + ":" + bc);    
+    XBee.flush();
+    return;
+  }
+  
+ // String message = "12::785:234:543";
+  int commaIndex = message.indexOf(':');
+  int secondCommaIndex = message.indexOf(':', commaIndex+1);
+  int thirdCommaIndex = message.indexOf(':', secondCommaIndex+1);
+  int fourthCommaIndex = message.indexOf(':', thirdCommaIndex+1);
+  String value1 = message.substring(0, commaIndex);
+  String value2 = message.substring(commaIndex+1, secondCommaIndex);
+  String value3 = message.substring(secondCommaIndex+1, thirdCommaIndex);
+  String value4 = message.substring(thirdCommaIndex+1, fourthCommaIndex);
+  String value5 = message.substring(fourthCommaIndex+1); //To the end of the string  
+    
+  Serial.println(message);
+//  Serial.println(commaIndex);
+//  Serial.println(secondCommaIndex);
+//  Serial.println(thirdCommaIndex);
+//  Serial.println(fourthCommaIndex);
+  Serial.println(value1);
+  Serial.println(value2);  
+  Serial.println(value3);
+  Serial.println(value4);
+  Serial.println(value5);
+  Serial.println("             new line");
+ // delay(100);
+  
+  
+  Serial.println(rc);
+  Serial.println(gc);
+  Serial.println(bc);
+  if(value1 == LocalAdd){                //Check to see if addressed individual
+    int red   = value3.toInt();
+    int green = value4.toInt();
+    int blue  = value5.toInt();
+  
+    if (rc!=red & red!=0){
+      rc=red;
+    }
+    if (gc!=green & green!=0){
+      gc=green;
+    }
+    if (bc!=blue & blue!=0){
+      bc=blue;
+    }
+    colorWipe(strip.Color(rc,gc,bc),1);
+    strip.setBrightness(map(value2.toInt(),100,0,0,255));
+    // address:brightness:Red:Green:Blue
+    // ex 1:50:255:200:100
+  }
+    
+}
+// Fill the dots one after the other with a color
+void colorWipe(uint32_t c, uint8_t wait) {
+  for(uint16_t i=0; i<strip.numPixels(); i++) {
+    strip.setPixelColor(i, c);
+    strip.show();
+    delay(wait);
+  }
+}
+// Slightly different, this makes the rainbow equally distributed throughout
+void rainbowCycle(uint8_t wait) {
+  uint16_t i, j;
+  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
+    for(i=0; i< strip.numPixels(); i++) {
+      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+    }
+    strip.show();
+    delay(wait);
+  }
+}
+// Input a value 0 to 255 to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t Wheel(byte WheelPos) {
+  WheelPos = 255 - WheelPos;
+  if(WheelPos < 85) {
+    return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  }
+  if(WheelPos < 170) {
+    WheelPos -= 85;
+    return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  }
+  WheelPos -= 170;
+  return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+}
