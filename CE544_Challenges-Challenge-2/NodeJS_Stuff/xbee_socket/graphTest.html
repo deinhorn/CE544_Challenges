@@ -5,22 +5,20 @@
     <script src="https://cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/jquery.roundslider/1.3/roundslider.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/jquery.roundslider/1.3/roundslider.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-
 </head>
 <body>
 <h1>Brightness</h1>
 <div style="float:left; width:25%" align = "center">
-Node 1:<input id="intensity1">
+Node 1:<input id="Node1">
 </div>
 <div style = "float:left; width:25%" align = "center">
-Node 2:<input id="intensity2">
+Node 2:<input id="Node2">
 </div>
 <div style="float:right; width:25%" align = "center">
-Node 3:<input id="intensity3">
+Node 3:<input id="Node3">
 </div>
 <div style = "float:right; width:25%" align = "center">
-Node 4:<input id="intensity4">
+Node 4:<input id="Node4">
 </div>
 <h1>Red Intensity</h1>
 <div style="float:left; width:25%" align = "center">
@@ -61,80 +59,47 @@ Node 3:<input id="blue3">
 <div style = "float:right; width:25%" align = "center">
 Node 4:<input id="blue4">
 </div>
-<div id = "test">test</div> 
 <script type="text/javascript">
-var brightness1 = "0";
-var brightness2 = "0";
-var brightness3 = "0";
-var brightness4 = "0";
-var red1 = "0";
-var red2 = "0";
-var red3 = "0";
-var red4 = "0";
-var green1 = "0";
-var green2 = "0";
-var green3 = "0";
-var green4 = "0";
-var blue1 = "0";
-var blue2 = "0";
-var blue3 = "0";
-var blue4 = "0";
-var socket = io();
-document.getElementById('test').innerHTML = "funciton call working: " + blue1;
-$("#intensity1").roundSlider({
-    radius: 33,
-    sliderType: "min-range",
-    value: 0,
-    change: function(args) {
-        //document.getElementById('test').innerHTML = "funciton call working: " + blue1;
-        var brightness1 = args.value;
-        var message = brightness1+":"+":"+":";
-        socket.emit("1:",message);
-        document.getElementById('test').innerHTML = "funciton call working: " + message;
-    }
-});
-$("#intensity2").roundSlider({
-    radius: 33,
-    sliderType: "min-range",
-    value: 0,
-    change: function(args) {
-        brightness2 = args.value;
-        var message = brightness2+":"+":"+":";
-        socket.emit("2:",message);
-        document.getElementById('test').innerHTML = "funciton call working: " + args.value;
-    }
-});
-$("#intensity3").roundSlider({
-    radius: 33,
-    sliderType: "min-range",
-    value: 0,
-    change: function(args) {
-        brightness3 = args.value;
-        var message = brightness3+":"+":"+":";
-        socket.emit("3:",message);
-        document.getElementById('test').innerHTML = "funciton call working: " + args.value;
-    }
-});
-$("#intensity4").roundSlider({
-    radius: 33,
-    sliderType: "min-range",
-    value: 0,
-    change: function(args) {
-        brightness4 = args.value;
-        var message = brightness4+":"+":"+":";
-        socket.emit("4:",message);
-        document.getElementById('test').innerHTML = "funciton call working: " + args.value;
-    }
-});
 //var socket = io();
+$("#Node1").roundSlider({
+    radius: 33,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        //socket.emit("1:0:",args.value);
+        document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#Node2").roundSlider({
+    radius: 33,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#Node3").roundSlider({
+    radius: 33,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
+$("#Node4").roundSlider({
+    radius: 33,
+    sliderType: "min-range",
+    value: 0,
+    change: function(args) {
+        document.getElementById('test').innerHTML = "funciton call working: " + args.value;
+    }
+});
 $("#red1").roundSlider({
     radius: 33,
     sliderType: "min-range",
     value: 0,
     change: function(args) {
-        red1 = args.value;
-        var message = ":"+red1+":"+":";
-        socket.emit("1:",message);
+        //socket.emit("1:0:",args.value);
         document.getElementById('test').innerHTML = "funciton call working: " + args.value;
     }
 });
@@ -143,9 +108,6 @@ $("#red2").roundSlider({
     sliderType: "min-range",
     value: 0,
     change: function(args) {
-        red2 = args.value;
-        var message = ":"+red2+":"+":";
-        socket.emit("2:",message);
         document.getElementById('test').innerHTML = "funciton call working: " + args.value;
     }
 });
@@ -154,9 +116,6 @@ $("#red3").roundSlider({
     sliderType: "min-range",
     value: 0,
     change: function(args) {
-        red3 = args.value;
-        var message = ":"+red3+":"+":";
-        socket.emit("3:",message);
         document.getElementById('test').innerHTML = "funciton call working: " + args.value;
     }
 });
@@ -165,9 +124,6 @@ $("#red4").roundSlider({
     sliderType: "min-range",
     value: 0,
     change: function(args) {
-        red4 = args.value;
-        var message = ":"+red4+":"+":";
-        socket.emit("4:",message);
         document.getElementById('test').innerHTML = "funciton call working: " + args.value;
     }
 });
@@ -176,9 +132,7 @@ $("#green1").roundSlider({
     sliderType: "min-range",
     value: 0,
     change: function(args) {
-        green1 = args.value;
-        var message = ":"+":"+green1+":";
-        socket.emit("1:",message);
+        //socket.emit("1:0:",args.value);
         document.getElementById('test').innerHTML = "funciton call working: " + args.value;
     }
 });
@@ -187,9 +141,6 @@ $("#green2").roundSlider({
     sliderType: "min-range",
     value: 0,
     change: function(args) {
-        green2 = args.value;
-        var message = ":"+":"+green2+":";
-        socket.emit("2:",message);
         document.getElementById('test').innerHTML = "funciton call working: " + args.value;
     }
 });
@@ -198,9 +149,6 @@ $("#green3").roundSlider({
     sliderType: "min-range",
     value: 0,
     change: function(args) {
-        green3 = args.value;
-        var message = ":"+":"+green3+":";
-        socket.emit("3:",message);
         document.getElementById('test').innerHTML = "funciton call working: " + args.value;
     }
 });
@@ -209,9 +157,6 @@ $("#green4").roundSlider({
     sliderType: "min-range",
     value: 0,
     change: function(args) {
-        green4 = args.value;
-        var message = ":"+":"+green4+":";
-        socket.emit("4:",message);
         document.getElementById('test').innerHTML = "funciton call working: " + args.value;
     }
 });
@@ -220,9 +165,7 @@ $("#blue1").roundSlider({
     sliderType: "min-range",
     value: 0,
     change: function(args) {
-        blue1 = args.value;
-        var message = ":"+":"+":"+blue1;
-        socket.emit("1:",message);
+        //socket.emit("1:0:",args.value);
         document.getElementById('test').innerHTML = "funciton call working: " + args.value;
     }
 });
@@ -231,9 +174,6 @@ $("#blue2").roundSlider({
     sliderType: "min-range",
     value: 0,
     change: function(args) {
-        blue2 = args.value;
-        var message = ":"+":"+":"+blue2;
-        socket.emit("2:",message);
         document.getElementById('test').innerHTML = "funciton call working: " + args.value;
     }
 });
@@ -242,9 +182,6 @@ $("#blue3").roundSlider({
     sliderType: "min-range",
     value: 0,
     change: function(args) {
-        blue3 = args.value;
-        var message = ":"+":"+":"+blue3;
-        socket.emit("3:",message);
         document.getElementById('test').innerHTML = "funciton call working: " + args.value;
     }
 });
@@ -253,12 +190,10 @@ $("#blue4").roundSlider({
     sliderType: "min-range",
     value: 0,
     change: function(args) {
-        blue4 = args.value;
-        var message = ":"+":"+":"+blue4;
-        socket.emit("4:",message);
         document.getElementById('test').innerHTML = "funciton call working: " + args.value;
     }
 });
+
 </script>
 </body>
 </html>
