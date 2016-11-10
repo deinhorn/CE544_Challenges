@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<style>
+#container {
+  width: 900px;
+  height: 800px;
+  position: relative;
+  z-index: 0;
+}
+#animate {
+  position: absolute;
+  left: 700px;
+  top: 95px;
+  z-index: 2;
+}
+#beacon1 {
+  position: absolute;
+  left: 70px;
+  top: 90px;
+  z-index: 1;
+}
+#beacon2 {
+  position: absolute;
+  left: 800px;
+  top: 90px;
+  z-index: 1;
+}
+#beacon3 {
+  position: absolute;
+  left: 800px;
+  top: 560px;
+  z-index: 1;
+}
+#beacon4 {
+  position: absolute;
+  left: 70px;
+  top: 560px;
+  z-index: 1;
+}
+#beacon5 {
+  position: absolute;
+  left: 425px;
+  top: 90px;
+  z-index: 1;
+}
+#beacon6 {
+  position: absolute;
+  left: 415px;
+  top: 560px;
+  z-index: 1;
+}
+</style>
+
+
+<body>
+
+<p>
+<button onclick="myMove()">Click Me</button>
+</p>
+
+<div id ="container"> <img src = "//ad/eng/users/d/e/deinhorn/Desktop/Pho4.PNG" height = "700" width = "900" />
+  <div id = "animate"> <img src="http://www.rcdriver.com/wp-content/uploads/2016/07/RC-Crawler-Review-Exceed-MaxStone-13.jpg" alt = "animate" height = "50" width "50" /></div>
+  <div id = "beacon1"> <img src="http://doc.libxbee.attie.co.uk/images/xbee1.jpg" height = "50" width = "50" /> </div>
+  <div id = "beacon2"> <img src="http://doc.libxbee.attie.co.uk/images/xbee1.jpg" height = "50" width = "50" /> </div>
+  <div id = "beacon3"> <img src="http://doc.libxbee.attie.co.uk/images/xbee1.jpg" height = "50" width = "50" /> </div>
+  <div id = "beacon4"> <img src="http://doc.libxbee.attie.co.uk/images/xbee1.jpg" height = "50" width = "50" /> </div>
+  <div id = "beacon5"> <img src="http://doc.libxbee.attie.co.uk/images/xbee1.jpg" height = "50" width = "50" /> </div>
+  <div id = "beacon6"> <img src="http://doc.libxbee.attie.co.uk/images/xbee1.jpg" height = "50" width = "50" /> </div>
+</div>
+
+<script>
+function myMove(){ 
+  var elem = document.getElementById("animate");
+  var posX = 700;
+  var posY = 95;
+  var destX = 300;
+  var destY = 80;
+  var i = 0;
+  var intervalX = 0;
+  var intervalY = 0;
+  var Xcoordinate = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+  var Ycoordinate = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+  var arrayLength = Ycoordinate.length;
+  var k = -1;
+  var newposY = 0;
+  var newposX = 0;
+  Xcoordinate[24] = destX;
+  Ycoordinate[24] = destY;
+  Xcoordinate[0] = posX;
+  Ycoordinate[0] = posY;
+  
+  intervalX = Math.round(posX - destX)/25;
+  intervalY = Math.round(posY - destY)/25;
+  
+
+  for(var i = 1; i < 24; i++){
+    Xcoordinate[i] = posX-(intervalX*i);
+    Ycoordinate[i] = posY-(intervalY*i);
+   }
+  
+var id = setInterval(frame, 50);
+  
+
+  function frame() {
+    if (destX > 730 || destX < 20){
+      clearInterval(id);
+    } else {
+      k++;
+      newposY = Ycoordinate[k];
+      newposX = Xcoordinate[k];
+      elem.style.top = newposY + 'px';
+      elem.style.left = newposX + 'px';
+    }
+  }
+}
+</script>
+
+</body>
+</html>
