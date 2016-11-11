@@ -9,8 +9,8 @@
 }
 #animate {
   position: absolute;
-  left: 700px;
-  top: 95px;
+  left: 400px;
+  top: 5px;
   z-index: 2;
 }
 #beacon1 {
@@ -69,48 +69,85 @@
 </div>
 
 <script>
-function myMove(){ 
+function myMove(hallway,pos){ 
   var elem = document.getElementById("animate");
-  var posX = 700;
-  var posY = 95;
-  var destX = 300;
-  var destY = 80;
   var i = 0;
-  var intervalX = 0;
-  var intervalY = 0;
-  var Xcoordinate = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-  var Ycoordinate = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-  var arrayLength = Ycoordinate.length;
-  var k = -1;
   var newposY = 0;
   var newposX = 0;
-  Xcoordinate[24] = destX;
-  Ycoordinate[24] = destY;
-  Xcoordinate[0] = posX;
-  Ycoordinate[0] = posY;
+  var interval = 0;
+  // coordinate is the array for moving crawler
+  var coordinate = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+  // coordinate_still is the array of the X or Y value that stays consant depending on hallway
+  var coordinate_still_Y1 = [95,95,95,95,95,95,95,95,95,95,95,95,95,95,95,95,95,95,95,95,95,95,95,95,95];
+  var coordinate_still_Y2 = [550,550,550,550,550,550,550,550,550,550,550,550,550,550,550,550,550,550,550,550,550,550,550,550,550];
+  var coordinate_still_X1 = [70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,];
+  var coordinate_still_X2 = [700,700,700,700,700,700,700,700,700,700,700,700,700,700,700,700,700,700,700,700,700,700,700,700,700];
+  var k = -1;
   
-  intervalX = Math.round(posX - destX)/25;
-  intervalY = Math.round(posY - destY)/25;
-  
+  if (hallway == 1){
+  	coordinate[0] = 95;
+  	coordinate[24] = 95 + (pos * 9.25); // ft to pixel conversion
+  	interval = Math.round((coordinate[24] - coordinate[0])/25); // interval between location and beacon for smooth animation
 
-  for(var i = 1; i < 24; i++){
-    Xcoordinate[i] = posX-(intervalX*i);
-    Ycoordinate[i] = posY-(intervalY*i);
-   }
+  	for(var i = 1; i < 24; i++){
+    coordinate[i] = 95 + (interval * i); // filling the array with intervals from max to min
+   	}
+  	} else if (hallway == 2){
+  		coordinate[0] = 700;
+  		coordinate[24] = 700 - (70 + (pos * 8.25)); // ft to pixel conversion
+  		interval = Math.round((coordinate[0] - coordinate[24])/25);
+
+  		for(var i = 1; i < 24; i++){
+    	coordinate[i] = 700 - (interval * i); }
+  	} else if (hallway == 3){
+  		coordinate[0] = 550;
+  		coordinate[24] = 550 - (95 + (pos * 7.5)); // ft to pixel conversion
+  		interval = Math.round((coordinate[0] - coordinate[24])/25);
+
+  		for(var i = 1; i < 24; i++){
+    	coordinate[i] = 550 - (interval * i); }
+  	} else if (hallway == 4){
+  		coordinate[0] = 70;
+  		coordinate[24] = 70 + (pos * 9.25); // ft to pixel conversion
+  		interval = Math.round((coordinate[24] - coordinate[0])/25);
+
+  		for(var i = 1; i < 24; i++){
+    	coordinate[i] = 70 + (interval * i); }
+  	}
+
+ 
   
 var id = setInterval(frame, 50);
   
-
+//animation function
   function frame() {
-    if (destX > 730 || destX < 20){
+    if (pos> 75 || pos < 0){
       clearInterval(id);
-    } else {
+    } else if (hallway == 1){
       k++;
-      newposY = Ycoordinate[k];
-      newposX = Xcoordinate[k];
+      newposY = coordinate[k];
+      newposX = coordinate_still_X2[k];
       elem.style.top = newposY + 'px';
       elem.style.left = newposX + 'px';
-    }
+    } else if (hallway == 2){
+    		k++;
+      		newposY = coordinate_still_Y2[k];
+      		newposX = coordinate[k];
+      		elem.style.top = newposY + 'px';
+      		elem.style.left = newposX + 'px';
+    	} else if (hallway == 3){
+    		k++;
+      		newposY = coordinate[k];
+      		newposX = coordinate_still_X1[k];
+      		elem.style.top = newposY + 'px';
+      		elem.style.left = newposX + 'px';
+    	} else if (hallway == 4){
+    		k++;
+      		newposY = coordinate_still_Y1[k];
+      		newposX = coordinate[k];
+      		elem.style.top = newposY + 'px';
+      		elem.style.left = newposX + 'px';
+    	}
   }
 }
 </script>
