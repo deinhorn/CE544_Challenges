@@ -11,7 +11,7 @@ int buttonState = 0;
 int state = HIGH;
 int reading;
 int previous = LOW;
-String message;
+char message;
 
 //leader variable
 int leader = 2;
@@ -20,7 +20,7 @@ int leader = 2;
 int infection = 0;
 
 long time = 0;
-long debounce = 200;
+long debounce = 100;
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -28,7 +28,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800)
 void setup() {
   XBee.begin(9600);
   pinMode(buttonPin, INPUT);
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   strip.setBrightness(BRIGHTNESS);
   strip.begin();
@@ -44,8 +44,8 @@ void loop(){
     //button press
     reading = digitalRead(buttonPin);
     
-    if (reading == HIGH && previous == LOW && millis() - time > debounce) {
-      if (state == HIGH)
+    if (reading == HIGH && millis() - time > debounce) {
+       if (state == HIGH)
         state = LOW;
       else
         state = HIGH;
@@ -60,24 +60,22 @@ void loop(){
     if (infection == 0){
       colorWipe(strip.Color(0, 255, 0), 50); //non-leader
     }
-     
+
       //Search for a CLEAR INFECTION MESSAGE
-      message = XBee.read();
+      message = Serial.read();
       //If receive clear infection message, change back to green
-      if (message == "c"){
+      if (message == 'c'){
         colorWipe(strip.Color(0, 255, 0), 50); //clear infection turn green
         infection == 0;
       }
-    
-  
-    
+     
     //button press
     reading = digitalRead(buttonPin);
 
-    if (reading == HIGH && previous == LOW && millis() - time > debounce) {
-      if (state == HIGH)
+    if (reading == LOW) {// && millis() - time > debounce) {
+       if (state == HIGH)
         state = LOW;
-      else
+        else
         state = HIGH;
         //Infect itself
         infection = 1;
