@@ -21,9 +21,33 @@ int infection = 0;
 
 long time = 0;
 long debounce = 100;
+int last = millis();
+int count = 0;
+int count2 = 0;
+int three_sec = 0;
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
 
+ISR(TIMER1_COMPA_vect) {
+  int now = millis()-last;
+  //Serial.println(now);
+  last = millis();
+  if (infection == 1){
+    count++;
+    if (count % 2 == 0){
+      Serial.println("Infection Message");
+    }
+  }
+    if (three_sec == 1){
+      count2++;
+      Serial.println(count2);
+      if (count2 % 3 == 0){
+        three_sec = 0;
+        count2 = 0;
+        TIMSK1 &= (0 << OCIE1A);
+    }
+   }
+};
 
 void setup() {
   XBee.begin(9600);
@@ -33,6 +57,12 @@ void setup() {
   strip.setBrightness(BRIGHTNESS);
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
+
+    TCCR1A = 0x00; // normal operation page 148 (mode0);
+    TCNT1= 0x0000; // 16bit counter register
+    TCCR1B = 0x0C; // 16MHZ with 64 prescalar
+    OCR1A = (62500-1);  // 10 Hz
+    //TIMSK1 |= (1 << OCIE1A); //Enable timer compare interrupt
 }
 
 
@@ -44,7 +74,7 @@ void loop(){
     //button press
     reading = digitalRead(buttonPin);
     
-    if (reading == HIGH && millis() - time > debounce) {
+    if (reading == LOW && millis() - time > debounce) {
        if (state == HIGH)
         state = LOW;
       else
@@ -66,20 +96,28 @@ void loop(){
       //If receive clear infection message, change back to green
       if (message == 'c'){
         colorWipe(strip.Color(0, 255, 0), 50); //clear infection turn green
-        infection == 0;
+        infection = 0;
+        three_sec = 1;
+        TIMSK1 &= (0 << OCIE1A); // Turn off infection message timer
+        TCCR1A = 0x00; // normal operation page 148 (mode0);
+        TCNT1= 0x0000; // 16bit counter register
+        TIMSK1 |= (1 << OCIE1A); // Turn on immunity timer
       }
      
     //button press
     reading = digitalRead(buttonPin);
 
-    if (reading == LOW) {// && millis() - time > debounce) {
+    if (reading == LOW && millis() - time > debounce) {
        if (state == HIGH)
         state = LOW;
         else
         state = HIGH;
         //Infect itself
-        infection = 1;
-        colorWipe(strip.Color(255, 0, 0), 50);  
+        if (three_sec == 0){
+          infection = 1;
+          colorWipe(strip.Color(255, 0, 0), 50);  
+          TIMSK1 |= (1 << OCIE1A); //Turn on infection message timer
+        }
     }
       
     time = millis();    
