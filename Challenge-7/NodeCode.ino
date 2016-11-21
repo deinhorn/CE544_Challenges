@@ -63,9 +63,9 @@ void setup() {
   pinMode(buttonPin, INPUT);
   Serial.begin(9600);
 
-  strip.setBrightness(BRIGHTNESS);
-  strip.begin();
-  strip.show(); // Initialize all pixels to 'off'
+  //strip.setBrightness(BRIGHTNESS);
+  //strip.begin();
+  //strip.show(); // Initialize all pixels to 'off'
 
     TCCR1A = 0x00; // normal operation page 148 (mode0);
     TCNT1= 0x0000; // 16bit counter register
@@ -112,7 +112,7 @@ void setup() {
   XBee.println(myID);
   long electStart = millis();
   while((millis()-electStart)<waitTime){
-    response = XBee.readString;
+    response = XBee.readString();
     if(response != "i" && response != "c"){
        long ID = response.toInt();
        if(ID < myID){
