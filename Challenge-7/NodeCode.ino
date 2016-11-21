@@ -1,5 +1,6 @@
 #include <Adafruit_NeoPixel.h>
 #include <SoftwareSerial.h>
+#include <stdlib.h>
 SoftwareSerial XBee(2, 3); // RX, TX
 
 #define PIN 7
@@ -25,6 +26,12 @@ int last = millis();
 int count = 0;
 int count2 = 0;
 int three_sec = 0;
+
+
+long myID; 
+long waitTime = 10000;
+String response;
+long leaderID = 0;
 
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
@@ -65,6 +72,64 @@ void setup() {
     TCCR1B = 0x0C; // 16MHZ with 64 prescalar
     OCR1A = (62500-1);  // 10 Hz
     //TIMSK1 |= (1 << OCIE1A); //Enable timer compare interrupt
+
+  XBee.begin(9600);
+  Serial.begin(9600);
+  Serial.println("Testing AT commands!");
+  delay(1000);
+  XBee.print("+++");
+  delay(1020);
+  if (XBee.available()>0){
+      String response = XBee.readString();
+      //Serial.println(response);
+  }
+  else{
+    Serial.println("***** ERROR READING MY ADDRESS --- RESTART *****");
+  }
+  XBee.println("ATMY");
+  delay(1020);
+  if (XBee.available()>0){
+    String response = XBee.readString();
+    Serial.println(response);
+    //String myIDstring = "0x" + response;
+    myID = strtol((const char*)response.c_str(), NULL, 16);
+    Serial.println(myID);
+    
+  }
+  else{
+    Serial.println("***** ERROR READING MY ADDRESS --- RESTART *****");
+  }
+  XBee.println("ATCN");
+  delay(1020);
+  if(XBee.available()>0){
+    String response = XBee.readString();
+    //Serial.println(response);
+  }
+  else{
+    Serial.println("***** ERROR READING MY ADDRESS --- RESTART *****");
+  }
+  leaderID = myID;
+  XBee.println(myID);
+  long electStart = millis();
+  while((millis()-electStart)<waitTime){
+    response = XBee.readString;
+    if(response != "i" && response != "c"){
+       long ID = response.toInt();
+       if(ID < myID){
+        XBee.println(myID);  
+       }
+       else if(ID > leaderID){
+        leaderID = ID;
+       }
+    }
+  }
+  if(leaderID == myID){
+    Serial.println("I AM THE LEADER");
+  }
+  else{
+    Serial.print("ELECTED LEADER: ");
+    Serial.println(leaderID);
+  }
 }
 
 
