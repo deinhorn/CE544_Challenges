@@ -14,7 +14,7 @@ int previous = LOW;
 char message;
 
 //leader variable
-int leader = 2;
+int leader = 0;
 
 //Infection variable
 int infection = 0;
@@ -26,6 +26,7 @@ int count = 0;
 int count2 = 0;
 int three_sec = 0;
 
+
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
 
 ISR(TIMER1_COMPA_vect) {
@@ -35,6 +36,7 @@ ISR(TIMER1_COMPA_vect) {
   if (infection == 1){
     count++;
     if (count % 2 == 0){
+      XBee.println("i");
       Serial.println("Infection Message");
     }
   }
@@ -69,7 +71,8 @@ void setup() {
 void loop(){
   //Leader decision where leader is blue (leader == 1) 
   if (leader == 1){
-    colorWipe(strip.Color(0, 0, 255), 50); \
+    colorWipe(strip.Color(0, 0, 255), 50); 
+    TIMSK1 |= (1 << OCIE1A); // Turn on immunity timer
     
     //button press
     reading = digitalRead(buttonPin);
@@ -81,7 +84,8 @@ void loop(){
         state = HIGH;
         //Pressing button will cause the leader to send a CLEAR INFECTION MESSAGE
         //Clear Infection should happen only once per button press (not continuous)
-        XBee.write("clear");
+        XBee.println("c");
+        Serial.println("c");
   }
   time = millis(); 
   }
@@ -90,11 +94,12 @@ void loop(){
     if (infection == 0){
       colorWipe(strip.Color(0, 255, 0), 50); //non-leader
     }
-
+  
+    
       //Search for a CLEAR INFECTION MESSAGE
-      message = Serial.read();
-      //If receive clear infection message, change back to green
+    message = XBee.read();
       if (message == 'c'){
+      //If receive clear infection message, change back to green
         colorWipe(strip.Color(0, 255, 0), 50); //clear infection turn green
         infection = 0;
         three_sec = 1;
@@ -102,6 +107,10 @@ void loop(){
         TCCR1A = 0x00; // normal operation page 148 (mode0);
         TCNT1= 0x0000; // 16bit counter register
         TIMSK1 |= (1 << OCIE1A); // Turn on immunity timer
+      
+      }else if (message == 'i'){
+        colorWipe(strip.Color(255, 0, 0), 50); //clear infection turn green
+        infection = 1;
       }
      
     //button press
