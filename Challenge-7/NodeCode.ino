@@ -150,7 +150,7 @@ void loop(){
         //Pressing button will cause the leader to send a CLEAR INFECTION MESSAGE
         //Clear Infection should happen only once per button press (not continuous)
         XBee.println("c");
-        Serial.println("c");
+       // Serial.println("c");
   }
   time = millis(); 
   }
