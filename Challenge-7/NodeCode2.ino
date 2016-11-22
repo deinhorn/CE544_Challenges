@@ -27,14 +27,16 @@ int count1 = 0;
 int count = 0;
 int count2 = 0;
 int three_sec = 0;
+int cleared = 0;
+int count3 = 0;
 
 
 long myID; 
-long waitTime = 10000;
+long waitTime = 25000;
 String response;
 long leaderID = 0;
 long leaderMessage;
-long updateRate = 30000;
+long updateRate = 40000;
 
 int cQueue;
 int lQueue;
@@ -46,7 +48,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800)
 ISR(TIMER1_COMPA_vect) {
   if(leader == 1){
     count1++;
-    if (count1 % 2 == 0){
+    if (count1 % 4 == 0){
     XBee.println("l");
     }
     //Serial.println("l");
@@ -57,7 +59,7 @@ ISR(TIMER1_COMPA_vect) {
   
   if (infection == 1){
     count++;
-    if (count % 2 == 0){
+    if (count % 4 == 0){
       XBee.println("i");
       //Serial.println("Infection Message");
       count = 0;
@@ -66,11 +68,20 @@ ISR(TIMER1_COMPA_vect) {
     if (three_sec == 1){
       count2++;
       //Serial.println(count2);
-      if (count2 % 3 == 0){
+      if (count2 % 8 == 0){
         three_sec = 0;
         count2 = 0;
         TIMSK1 &= (0 << OCIE1A);
     }
+   }
+   if (cleared == 1 && count3 < 6){
+    XBee.println("c");
+   // XBee.flush();
+    count3++;
+   }
+   else if (count3 >= 5){
+    count3 = 0;
+    cleared = 0;
    }
 };
 
@@ -86,7 +97,7 @@ void setup() {
     TCCR1A = 0x00; // normal operation page 148 (mode0);
     TCNT1= 0x0000; // 16bit counter register
     TCCR1B = 0x0C; // 16MHZ with 64 prescalar
-    OCR1A = (62500-1);  // 10 Hz
+    OCR1A = (31250-1);  // 10 Hz
     //TIMSK1 |= (1 << OCIE1A); //Enable timer compare interrupt
 
   XBee.begin(9600);
@@ -138,10 +149,10 @@ void loop(){
       //Search MESSAGEs
       while (XBee.available() >0){
         message = XBee.readString();
-        Serial.print("message ( ");
+       /* Serial.print("message ( ");
         Serial.print(message.length());
         Serial.print(" chars): ");
-        Serial.println(message);
+        Serial.println(message);*/
         //Serial.print(message.indexOf('l'));
         if(message.indexOf('c') >= 0){
           cQueue = 1;
@@ -154,13 +165,13 @@ void loop(){
         }
       }
       
-      Serial.print("cQueue: ");
+   /*   Serial.print("cQueue: ");
       Serial.print(cQueue);
       Serial.print(", iQueue: ");
       Serial.print(iQueue);
       Serial.print(", lQueue: ");
       Serial.println(lQueue);
-      
+     */ 
     //Leader decision where leader is blue (leader == 1) 
     if (leader == 1){
       colorWipe(strip.Color(0, 0, 255), 50); 
@@ -176,8 +187,9 @@ void loop(){
           state = HIGH;
           //Pressing button will cause the leader to send a CLEAR INFECTION MESSAGE
           //Clear Infection should happen only once per button press (not continuous)
+          cleared = 1;
           XBee.println("c");
-          Serial.println("c");
+          //Serial.println("c");
         
     }
     time = millis(); 
@@ -189,7 +201,7 @@ void loop(){
         if(lQueue){
           leaderMessage = millis();
         } 
-        if(iQueue){
+        if(iQueue && !cQueue){
           colorWipe(strip.Color(255, 0, 0), 50); //infect turn red
           infection = 1;
           TIMSK1 |= (1 << OCIE1A); //Turn on infection message timer
