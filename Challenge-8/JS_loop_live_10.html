@@ -52,11 +52,16 @@
 </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <button type="button">&#8592</button>
+    <button type="button">&#8593</button>
+    <button type="button">&#8594</button>
+    <br> <button type="button">&#8595</button>
 
 <script>
+
 var lastX = 700;
 var lastY = 90;
-function myMove(hallway, pos){ 
+function myMove(hallway, pos){
   var elem = document.getElementById("animate");
 //var hallway = 4;
 //var pos = 50;
@@ -73,20 +78,20 @@ function myMove(hallway, pos){
   var coordinate_still_X1 = [70,70,70,70];
   var coordinate_still_X2 = [700,700,700,700];
   var k = -1;
-  
+
   if (hallway == 1){
   	coordinateY[3] = 95 + (pos * 9.25); // ft to pixel conversion
     coordinateX[3] = 700;
     coordinateY[0] = lastY;
     coordinateX[0] = lastX;
   	interval = Math.round((coordinateY[3] - coordinateY[0])/4);
-    
+
     if (coordinateX[3] != coordinateX[0]){
-      interval2 = Math.round((coordinateX[3] - coordinateX[0])/4); 
+      interval2 = Math.round((coordinateX[3] - coordinateX[0])/4);
       for(var i = 1; i < 3; i++){
       coordinateX[i] = lastX + (interval2 * i);}}
       else {coordinateX = coordinate_still_X2;} // interval between location and beacon for smooth animation
-  	  
+
         for(var i = 1; i < 3; i++){
           coordinateY[i] = lastY + (interval * i);} // filling the array with intervals from max to min
   	} else if (hallway == 2){
@@ -95,9 +100,9 @@ function myMove(hallway, pos){
       coordinateY[0] = lastY;
       coordinateX[0] = lastX;
   		interval = Math.round((coordinateX[3] - coordinateX[0])/4);
-      
+
       if (coordinateY[3] != coordinateY[0]){
-        interval2 = Math.round((coordinateY[3] - coordinateY[0])/4); 
+        interval2 = Math.round((coordinateY[3] - coordinateY[0])/4);
         for(var i = 1; i < 3; i++){
         coordinateY[i] = lastY + (interval2 * i);}}
         else {coordinateY = coordinate_still_Y2;}
@@ -110,7 +115,7 @@ function myMove(hallway, pos){
       coordinateX[0] = lastX;
   		interval = Math.round((coordinateY[3] - coordinateY[0])/4);
       if (coordinateX[3] != coordinateX[0]){
-        interval2 = Math.round((coordinateX[3] - coordinateX[0])/4); 
+        interval2 = Math.round((coordinateX[3] - coordinateX[0])/4);
         for(var i = 1; i < 3; i++){
         coordinateX[i] = lastX + (interval2 * i);}}
         else {coordinateX = coordinate_still_X1;} // interval between location and beacon for smooth animation
@@ -123,19 +128,19 @@ function myMove(hallway, pos){
       coordinateX[0] = lastX;
   		interval = Math.round((coordinateX[3] - coordinateX[0])/4);
       if (coordinateY[3] != coordinateY[0]){
-        interval2 = Math.round((coordinateY[3] - coordinateY[0])/4); 
+        interval2 = Math.round((coordinateY[3] - coordinateY[0])/4);
         for(var i = 1; i < 3; i++){
         coordinateY[i] = lastY + (interval2 * i);}}
         else {coordinateY = coordinate_still_Y1;}
-  		
+
           for(var i = 1; i < 3; i++){
     	      coordinateX[i] = lastX + (interval * i);}
     }
     lastY = coordinateY[3];
     lastX = coordinateX[3];
-  
+
 var id = setInterval(frame, 50);
-  
+
 //animation function
   function frame() {
     if (pos> 75 || pos < 0){
