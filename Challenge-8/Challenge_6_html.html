@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<style>
+#container {
+  width: 900px;
+  height: 800px;
+  position: relative;
+  background: grey;
+}
+#animate {
+  position: absolute;
+  z-index: 1;
+}
+#beacon1 {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 0;
+}
+#beacon2 {
+  position: absolute;
+  left: 840px;
+  top: 10px;
+  z-index: 0;
+}
+#beacon3 {
+  position: absolute;
+  left: 840px;
+  top: 740px;
+  z-index: 0;
+}
+#beacon4 {
+  position: absolute;
+  left: 10px;
+  top: 740px;
+  z-index: 0;
+}
+</style>
+
+
+<body>
+
+<p>
+<button onclick="myMove()">Click Me</button>
+</p>
+
+<div id ="container">
+  <div id = "animate"> <img src="http://www.rcdriver.com/wp-content/uploads/2016/07/RC-Crawler-Review-Exceed-MaxStone-13.jpg" alt = "animate" height = "50" width "50" /></div>
+  <div id = "beacon1"> <img src="http://doc.libxbee.attie.co.uk/images/xbee1.jpg" height = "50" width "50" /> </div>
+  <div id = "beacon2"> <img src="http://doc.libxbee.attie.co.uk/images/xbee1.jpg" height = "50" width "50" /> </div>
+  <div id = "beacon3"> <img src="http://doc.libxbee.attie.co.uk/images/xbee1.jpg" height = "50" width "50" /> </div>
+  <div id = "beacon4"> <img src="http://doc.libxbee.attie.co.uk/images/xbee1.jpg" height = "50" width "50" /> </div>
+</div>
+
+<script>
+function myMove() {
+  var elem = document.getElementById("animate");
+  var pos = 0;
+  var id = setInterval(frame, 5);
+  function frame() {
+    if (pos == 700) {
+      clearInterval(id);
+    } else {
+      pos++;
+      elem.style.top = pos + 'px';
+      elem.style.left = pos + 'px';
+    }
+  }
+}
+</script>
+
+</body>
+</html>
