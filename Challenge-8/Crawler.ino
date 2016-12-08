@@ -4,6 +4,10 @@
 //Cool Library
 #include <Adafruit_NeoPixel.h>
 
+#define trigPin A1
+#define echoPin A0
+
+
 //Cool Setup
 Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(10, A0, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(10, A1, NEO_GRB + NEO_KHZ800);
@@ -24,6 +28,8 @@ int center = 80;
 int limit = 35;          //steering limit degrees
 int boundD = 10;
 int speedControl = 90;
+int turning = 0;
+int autonomous = 1;
 
 
 void setup(){
@@ -41,6 +47,10 @@ void setup(){
   pinMode(6, INPUT); // Set pin 3 as monitor pin
   pinMode(5, OUTPUT); // Set pin 2 as trigger pin
   pinMode(4, INPUT); // Set pin 3 as monitor pin
+
+  //HC-SR04 Ultrasonic Sensor
+  pinMode(A0, INPUT);// Set pin A0 as echo pin
+  pinMode(A1, OUTPUT); // Set pin A1 as trigger pin
 
   //Crawler Control Setup
   wheels.attach(11); // initialize wheel servo to Digital IO Pin #11
@@ -95,26 +105,46 @@ void loop(){
     speedControl = 90;
     Serial.println("stop");
   }
-/*  if (input == "l"){
-    wheels.write(center+limit);
-    Serial.println("left turn");
+/*  if (input == 't'){
+    turning = 1;
+    Serial.println("initiate turn");
   }
-  if (input == "r"){
-    wheels.write(center-limit);
-    Serial.println("right turn");
+  if (input == 'x'){
+    turning = 0;
+    Serial.println("turn done");
   }
-  if (input == "forward"){
+  if (input == 'f'){
     speedControl = speedControl - 10;
     esc.write(speedControl);
     Serial.println("faster");
   }
-  if (input == "backward"){
+  if (input == 'b'){
     speedControl = speedControl + 10;
     esc.write(speedControl);
     Serial.println("slower");
-  }*/
-  
-
+  }
+  if (input == 'r'){
+    autonomous = 0;
+    if ((initial_wheels - 10) > 45){
+    wheels.write(initial_wheels - 10);
+    }else{
+      wheels.write(center - limit);
+    }
+    Serial.println("right turn");
+  }
+  if (input == 'l'){
+    autonomous = 0;
+    if ((initial_wheels + 10) < 115){
+    wheels.write(initial_wheels + 10);
+    }else{
+      wheels.write(center + limit);
+    }
+    Serial.println("left turn");
+  }
+  if (input == 'a'){
+    autonomous = 1;
+  }
+*/
   int time_init = millis();
   
   pulse_width_1 = pulseIn(6, HIGH); // Count how long the pulse is high in microseconds
@@ -128,20 +158,38 @@ void loop(){
  //   Serial.println(pulse_width_2); // Print the distance
   }
   //Check distance
-  float volts = analogRead(A4)*0.0048828125;   // value from sensor * (5/1024) - if running 3.3.volts then change 5 to 3.3
+/*  float volts = analogRead(A4)*0.0048828125;   // value from sensor * (5/1024) - if running 3.3.volts then change 5 to 3.3
   float distance = 65*pow(volts, -1.10);          // worked out from graph 65 = theretical distance / (1/Volts)S - luckylarry.co.uk
   if (distance<30){
     esc.write(90);
- }
+  }*/
+  /*
+  long duration, distance;
+  digitalWrite(trigPin, LOW);  // Added this line
+  delayMicroseconds(2); // Added this line
+  digitalWrite(trigPin, HIGH);
+//  delayMicroseconds(1000); - Removed this line
+  delayMicroseconds(10); // Added this line
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = (duration/2) / 29.1;
+  Serial.print("ultrasonic distance: ");
+  Serial.print(distance);   
+  Serial.print("   ");
+*/
+//  if (distance<30){
+//    esc.write(90);
+//  }
+  
+  
 //ADD - WE WANT THIS TO START MOVING AGAIN IF OBJECT IS NO LONGER <30 FROM THE FRONT
   
   int dt = (millis()-time_init);
 
-
+if (autonomous == 1){
   int error = (pulse_width_2 - pulse_width_1);
   float D = ((error_prev-error)*20/dt);
   int P = error * .8;
-//if (D > boundD || D < -boundD){
   initial_wheels = P + (int)D + initial_wheels;
  // Serial.println(D);
   //Serial.println(error_prev-error);
@@ -156,10 +204,10 @@ void loop(){
   if (error < 21 && error > -21){
     initial_wheels = center;
   }
-  if (error < -450){
+  if (error < -450 && turning == 0){
     initial_wheels = (center - 5);
   }
-  if (error > 450){
+  if (error > 450 && turning == 0){
     initial_wheels = (center + 5);
   }
 
@@ -200,7 +248,7 @@ prev_wheels = initial_wheels;
   
  // delay(20); //Delay so we don't overload the serial port
   
-//  }
+  }
 }
 
 
