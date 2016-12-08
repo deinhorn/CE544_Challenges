@@ -19,9 +19,11 @@ double maxWheelOffset = 85; // maximum wheel turn magnitude, in servo 'degrees'
 
 
 int initial_wheels = 90; //start angle
+int prev_wheels = 0;
 int center = 80;
 int limit = 35;          //steering limit degrees
 int boundD = 10;
+int speedControl = 90;
 
 
 void setup(){
@@ -35,14 +37,14 @@ void setup(){
   strip2.show();
 
   //LIDAR PWM setup
-  pinMode(6, OUTPUT); // Set pin 2 as trigger pin
-  pinMode(7, INPUT); // Set pin 3 as monitor pin
-  pinMode(4, OUTPUT); // Set pin 2 as trigger pin
-  pinMode(5, INPUT); // Set pin 3 as monitor pin
+  pinMode(7, OUTPUT); // Set pin 2 as trigger pin
+  pinMode(6, INPUT); // Set pin 3 as monitor pin
+  pinMode(5, OUTPUT); // Set pin 2 as trigger pin
+  pinMode(4, INPUT); // Set pin 3 as monitor pin
 
   //Crawler Control Setup
-  wheels.attach(8); // initialize wheel servo to Digital IO Pin #8
-  esc.attach(9); // initialize ESC to Digital IO Pin #9
+  wheels.attach(11); // initialize wheel servo to Digital IO Pin #11
+  esc.attach(10); // initialize ESC to Digital IO Pin #10
   /*  If you're re-uploading code via USB while leaving the ESC powered on, 
    *  you don't need to re-calibrate each time, and you can comment this part out.
    */
@@ -55,7 +57,7 @@ void setup(){
   colorWipe(strip1.Color(0,0,255),100);
   colorWipe(strip1.Color(255,255,255),50);
 
-  esc.write(75);
+  esc.write(90);
 }
 
 
@@ -80,26 +82,47 @@ unsigned long pulse_width_2;
 
 int error_prev = 0;
 void loop(){
-  
-/*  char input = Serial.read();
+  char input = 'n';
+  if(Serial.available() > 0){
+   input = Serial.read();
+  }
   if (input == 'g'){
     esc.write(70);
     Serial.println("go");
   }
   if (input == 's'){
     esc.write(90);
+    speedControl = 90;
     Serial.println("stop");
+  }
+/*  if (input == "l"){
+    wheels.write(center+limit);
+    Serial.println("left turn");
+  }
+  if (input == "r"){
+    wheels.write(center-limit);
+    Serial.println("right turn");
+  }
+  if (input == "forward"){
+    speedControl = speedControl - 10;
+    esc.write(speedControl);
+    Serial.println("faster");
+  }
+  if (input == "backward"){
+    speedControl = speedControl + 10;
+    esc.write(speedControl);
+    Serial.println("slower");
   }*/
-
+  
 
   int time_init = millis();
   
-  pulse_width_1 = pulseIn(7, HIGH); // Count how long the pulse is high in microseconds
+  pulse_width_1 = pulseIn(6, HIGH); // Count how long the pulse is high in microseconds
   if(pulse_width_1 != 0){ // If we get a reading that isn't zero, let's print it
     pulse_width_1 = pulse_width_1/10; // 10usec = 1 cm of distance for LIDAR-Lite
  //   Serial.println(pulse_width_1); // Print the distance
   }
-  pulse_width_2 = pulseIn(5, HIGH); // Count how long the pulse is high in microseconds
+  pulse_width_2 = pulseIn(4, HIGH); // Count how long the pulse is high in microseconds
   if(pulse_width_2 != 0){ // If we get a reading that isn't zero, let's print it
     pulse_width_2 = pulse_width_2/10; // 10usec = 1 cm of distance for LIDAR-Lite
  //   Serial.println(pulse_width_2); // Print the distance
@@ -110,15 +133,18 @@ void loop(){
   if (distance<30){
     esc.write(90);
  }
+//ADD - WE WANT THIS TO START MOVING AGAIN IF OBJECT IS NO LONGER <30 FROM THE FRONT
   
   int dt = (millis()-time_init);
 
 
   int error = (pulse_width_2 - pulse_width_1);
-  int D = (error_prev-error);//*100)/dt);
-  int P = error * .35;
-if (D > boundD || D < -boundD){
-  initial_wheels = P + initial_wheels;
+  float D = ((error_prev-error)*20/dt);
+  int P = error * .8;
+//if (D > boundD || D < -boundD){
+  initial_wheels = P + (int)D + initial_wheels;
+ // Serial.println(D);
+  //Serial.println(error_prev-error);
 
   //Limit steering turn
   if (initial_wheels > (center+limit)){
@@ -127,24 +153,36 @@ if (D > boundD || D < -boundD){
   if (initial_wheels < (center-limit)){
     initial_wheels = (center-limit);
   }
+  if (error < 21 && error > -21){
+    initial_wheels = center;
+  }
+  if (error < -450){
+    initial_wheels = (center - 5);
+  }
+  if (error > 450){
+    initial_wheels = (center + 5);
+  }
 
+  if(initial_wheels !=  prev_wheels){
+    //Write to steering
+    wheels.write(initial_wheels);
+  }
+prev_wheels = initial_wheels;
   
-  //Write to steering
-  wheels.write(initial_wheels);
-  Serial.print(pulse_width_2);
-  Serial.print(" : ");
-  Serial.print(pulse_width_1);
-  Serial.print(" : ");
+//  Serial.print(pulse_width_2);
+//  Serial.print(" : ");
+//  Serial.print(pulse_width_1);
+//  Serial.print(" : ");
   Serial.print(error);
   Serial.print(" : ");
   Serial.print(error_prev);
   Serial.print("       ");
-//  Serial.print(P);
-//  Serial.print("   ");
+  Serial.print(P);
+  Serial.print("   ");
 //  Serial.print(dt);
 //  Serial.print("   ");
   Serial.print(D);
-  Serial.print("   ");
+  Serial.print(" -- wheel turn: ");
   Serial.print(initial_wheels);
   Serial.println("");
  // delay(wait);
@@ -162,9 +200,7 @@ if (D > boundD || D < -boundD){
   
  // delay(20); //Delay so we don't overload the serial port
   
-  }else{
-    initial_wheels = 90;
-  }
+//  }
 }
 
 
@@ -178,3 +214,4 @@ void colorWipe(uint32_t c, uint8_t wait) {
     delay(wait);
   }
 }
+
