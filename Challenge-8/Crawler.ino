@@ -1,21 +1,6 @@
 //Library
 #include <Servo.h>
 
-//Cool Library
-#include <Adafruit_NeoPixel.h>
-
-//Ultrasonic Sensor
-#define trigPin A1
-#define echoPin A0
-
-
-//Cool Setup
-Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(10, 8, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(10, 9, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(10, 12, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip4 = Adafruit_NeoPixel(10, 13, NEO_GRB + NEO_KHZ800);
-
-
 //Servo Setup
 Servo wheels; // servo for turning the wheels
 Servo esc; // not actually a servo, but controlled like one!
@@ -43,15 +28,6 @@ void setup() {
   //Serial Start
   Serial.begin(9600);  //Opens serial connection at 9600bps.
 
-  //Cool Start
-  strip1.begin();
-  strip2.begin();
-  strip3.begin();
-  strip4.begin();
-  strip1.show();
-  strip2.show();
-  strip3.show();
-  strip4.show();
 
   //LIDAR PWM setup
   pinMode(7, OUTPUT); // Set pin 2 as trigger pin
@@ -59,9 +35,6 @@ void setup() {
   pinMode(5, OUTPUT); // Set pin 2 as trigger pin
   pinMode(4, INPUT); // Set pin 3 as monitor pin
 
-  //HC-SR04 Ultrasonic Sensor
-  //pinMode(A0, INPUT);// Set pin A0 as echo pin
-  //pinMode(A1, OUTPUT); // Set pin A1 as trigger pin
 
   //Crawler Control Setup
   wheels.attach(11); // initialize wheel servo to Digital IO Pin #11
