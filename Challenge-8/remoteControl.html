@@ -1,0 +1,100 @@
+<html>
+<head>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script type="text/javascript">
+var socket = io();
+  socket.on('control', function(msg){
+    document.getElementById('node4').innerHTML = msg;
+  });
+
+function leftArrowPressed() {
+        //document.getElementById('node4').innerHTML = "left";
+          socket.emit('control',"l");
+}
+
+    function rightArrowPressed() {
+ //document.getElementById('node4').innerHTML = "right";
+ socket.emit('control',"r");
+    }
+    function topArrowPressed() {
+//document.getElementById('node4').innerHTML = "forward";
+socket.emit('control',"f");
+    }
+
+    function downArrowPressed() {
+ //document.getElementById('node4').innerHTML = "backward";
+ socket.emit('control',"b");
+    }
+
+    function goPressed(){
+      //document.getElementById('node4').innerHTML = "go";
+      socket.emit('control',"g");
+    }
+    function stopPressed(){
+      //document.getElementById('node4').innerHTML = "stop";
+      socket.emit('control',"s");
+    }
+    function autonomousPressed(){
+      //document.getElementById('node4').innerHTML = "stop";
+      socket.emit('control',"a");
+    }
+        function turnPressed(){
+      //document.getElementById('node4').innerHTML = "turn";
+      socket.emit('control',"t");
+    }
+        function stopTurnPressed(){
+      //document.getElementById('node4').innerHTML = "stopTurn";
+      socket.emit('control',"x");
+    }
+
+    document.onkeydown = function(evt) {
+        evt = evt || window.event;
+        switch (evt.keyCode) {
+            case 32:
+                spacePressed();
+                break;
+            case 37:
+                leftArrowPressed();
+                break;
+
+            case 38:
+                topArrowPressed();
+                break;
+
+            case 39:
+                rightArrowPressed();
+                break;
+
+            case 40:
+                downArrowPressed();
+                break;
+
+            case 65:
+                autonomousPressed();
+                break;
+
+            case 71:
+                goPressed();
+                break;
+
+            case 83:
+                stopPressed();
+                break;
+//Comment these out
+            case 84:
+                turnPressed();
+                break;
+            case 88:
+                stopTurnPressed();
+                break;
+        }
+    };
+
+</script>
+</head>
+<body>
+<div id = "node4">testing</div>
+</body>
+</html>
