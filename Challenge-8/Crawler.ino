@@ -32,6 +32,8 @@ int center = 80;
 int limit = 35;          //steering limit degrees
 int boundD = 10;
 int speedControl = 90;
+int right_wheels = 90;
+int left_wheels = 90;
 int turning = 0;
 int autonomous = 1;
 long dist;
@@ -140,24 +142,30 @@ void loop() {
   }
   if (input == 'r') {
     autonomous = 0;
-    if ((initial_wheels - 10) > 45) {
-      wheels.write(initial_wheels - 10);
+    if (initial_wheels - 15 > 45) {
+      initial_wheels = initial_wheels - 15;
+      wheels.write(initial_wheels);
     } else {
-      wheels.write(center - limit);
+      initial_wheels = 45;
+      wheels.write(initial_wheels);
     }
-    Serial.println("right turn");
+    Serial.println(initial_wheels);
   }
   if (input == 'l') {
     autonomous = 0;
-    if ((initial_wheels + 10) < 115) {
-      wheels.write(initial_wheels + 10);
+    if (initial_wheels + 15 < 115) {
+      initial_wheels = initial_wheels + 15;
+      wheels.write(initial_wheels);
     } else {
-      wheels.write(center + limit);
+      initial_wheels = 115;
+      wheels.write(initial_wheels);
     }
-    Serial.println("left turn");
+    Serial.println(initial_wheels);
   }
   if (input == 'a') {
     autonomous = 1;
+    esc.write(70);
+    Serial.println("autonomous mode");
   }
 
 
