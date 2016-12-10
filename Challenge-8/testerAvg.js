@@ -27,16 +27,18 @@ var avgThreeFull = 0;
 var avgFourFull = 0;
 var hallwayNum  = 0;
 var hallLen = 0;
+var turning = 0;
 var hallOneLen = 30;
-var hallTwoLen = 100;
+var hallTwoLen = 70;
 var hallThreeLen = 30;
-var hallFourLen = 100;
+var hallFourLen = 70;
 var C = xbee_api.constants;
 var XBeeAPI = new xbee_api.XBeeAPI({
   api_mode: 2
 });
 
 var portName = process.argv[2];
+var ArduinoPort = process.argv[3];
 
 app.get('/', function(req, res){
   res.sendFile(__dirname +'/JS_loop_live.html');
@@ -49,10 +51,16 @@ portConfig = {
 	baudRate: 9600,
   parser: XBeeAPI.rawParser()
 };
+ArduinoConfig = {
+  baudRate: 9600,
+  parser: SerialPort.parsers.readline("\n")
+  //parser: SerialPort.parsers.readline("\n")
+};
 
 var sp;
 sp = new SerialPort.SerialPort(portName, portConfig);
-
+var ArduinoSP;
+ArduinoSP = new SerialPort.SerialPort(ArduinoPort, ArduinoConfig);
 
 //Create a packet to be sent to all other XBEE units on the PAN.
 // The value of 'data' is meaningless, for now.
@@ -79,10 +87,23 @@ io.on('connection', function(socket){
   console.log('a user connected');
   socket.on('disconnect', function(){
   });
+   socket.on('control', function(msg){
+    //io.emit('control',msg);
+    ArduinoSP.write(msg);
+    console.log(msg);
+  });
 });
 
 http.listen(3000, function(){
   console.log('listening on *:3000');
+});
+
+ArduinoSP.on("open", function(){
+  console.log('Arduino Port Open');
+    ArduinoSP.on('data', function(data) {
+    //console.log('data received: ' + data);
+    io.emit('control', data);
+  });
 });
 
 XBeeAPI.on("frame_object", function(frame) {
@@ -113,10 +134,10 @@ XBeeAPI.on("frame_object", function(frame) {
     }
     else if (node == 3){
       if(iThree<arrLen&& frame.data[0] !=255){
-        //loggerThree[iThree] = (frame.data[0]*.2452) + 52.605;
+        //loggerThree[iThree] = (frame.data[0]*.24) + 56;
         //iThree++;
         avgThreeFull = 1;
-        avgThree = (frame.data[0]*3.0439)-140;
+        avgThree = (frame.data[0]*3.3)-140;
         if(avgThree < 0){
           avgThree=0;
         }
@@ -127,7 +148,7 @@ XBeeAPI.on("frame_object", function(frame) {
         //loggerFour[iFour] = (frame.data[0]*.2465)+55;
         //iFour++;
         avgFourFull = 1;
-        avgFour = (frame.data[0]*2.6557)-100;
+        avgFour = (frame.data[0]*3)-130;
         if(avgFour < 0){
           avgFour =0;
         }
@@ -136,51 +157,13 @@ XBeeAPI.on("frame_object", function(frame) {
     else{
       console.log("node number not recognized: " + node);
     }
-    /*
-    if(iOne>=arrLen){
-      var sumOne = 0;
-      for(var l = 0;l<arrLen;l++){
-        sumOne = sumOne + loggerOne[l];
-      }
-      avgOne = math.round(sumOne/arrLen);
-      avgOneFull = 1;
-      iOne = 0;
-    }
-    if(iTwo >=arrLen){
-      var sumTwo = 0;
-      for(var l = 0;l<arrLen;l++){
-        sumTwo = sumTwo + loggerTwo[l];        
-      }
-      avgTwo = math.round(sumTwo/arrLen);
-      avgTwoFull = 1;
-      iTwo = 0;
-    }
-    if(iThree >= arrLen){
-      var sumThree = 0;
-      for(var l = 0;l<arrLen;l++){
-        sumThree = sumThree + loggerThree[l];
-      }
-      avgThree = math.round(sumThree/arrLen);
-      avgThreeFull = 1;
-      iThree = 0;
-    }
-    if(iFour >=arrLen){ 
-      var sumFour = 0;
-      for(var l = 0;l<arrLen;l++){
-        sumFour = sumFour + loggerFour[l];
-      }
-      avgFour = math.round(sumFour/arrLen);
-      avgFourFull = 1;
-      iFour = 0;
-    }
-*/
     if(avgOneFull == 1 && avgTwoFull == 1 && avgThreeFull == 1 && avgFourFull == 1){
       //avgOneFull = 0;
       //avgTwoFull = 0;
       //avgThreeFull = 0;
       //avgFourFull = 0;  
       var avgs = [avgOne,avgTwo,avgThree,avgFour];
-      var avgIndex = [0,0,0,0];
+      var avgIndex = [1,2,3,4];
       console.log(avgs[0] + " " + avgs[1] + " " + avgs[2] + " " + avgs[3]);
       var MinFirst = -1;
       var MinSecond = -1;
@@ -196,206 +179,86 @@ XBeeAPI.on("frame_object", function(frame) {
           var tempi = avgs[min];
           avgs[min] = avgs[l];
           avgs[l] = tempi;
-          /*
-          if(l == 0){
-            //console.log("not filling min" + +min+1);
-            if(min == 1){
-              MinFirst = 2;
-            }
-            else{
-              MinFirst = min+1;
-            }
-          }
-          else if (l == 1){
-            if(+min+1 == MinFirst){
-              MinSecond = 1;
-            }
-            else{
-              MinSecond = +min+1;
-            }
-          }
-          */
-        }
-        //console.log(min);
-        if(Number(avgIndex[0]) == Number(min)+1){
-          //console.log("correctly inside func");
-          avgIndex[l] = 1;
-        }
-        else if(Number(avgIndex[1]) == Number(min)+1){
-          avgIndex[l] = 2;
-        }
-        else if(Number(avgIndex[2]) == Number(min)+1){
-          avgIndex[l] = 3;
-        }
-        else{
-          avgIndex[l] = Number(min)+1;
-        }
-      }
-      /*
-      if(MinFirst == -1){
-        //console.log("not filling min1");
-        MinFirst = 1;
-      }
-      if(MinSecond == -1){
-        if(MinFirst == 2){
-          MinFirst = 1;
-        }
-        else{
-          MinSecond = 2;
+	  var tempIndex = avgIndex[min];
+          avgIndex[min] = avgIndex[l];
+          avgIndex[l] =tempIndex;
+
         }
 
       }
-      */
+
+MinFirst = avgIndex[0];
+MinSecond = avgIndex[1];
       console.log(avgs[0] + " " + avgs[1] + " " + avgs[2] + " " + avgs[3]);
-      console.log(avgIndex[0] + " " + avgIndex[1] + " " + avgIndex[2] + " " + avgIndex[3]); 
-      if(avgIndex[0] == 1 && avgIndex[1] == 2 && avgIndex[2] == 4){
-        var compLong = hallFourLen-avgs[2];
-        var compShort = hallOneLen -avgs[1];
-        if(compLong > compShort){
-          hallwayNum = 4;
-          var dist = hallFourLen - avgFour;
-          if(dist < 0){
-            dist = 0;
-          }
-          hallLen = math.round((dist + avgOne)/2);
-          if(hallLen > hallFourLen){
-            hallLen = hallFourLen;
-          } 
-        }
-        else{
+      console.log(avgIndex[0] + " " + avgIndex[1] + " " + avgIndex[2] + " " + avgIndex[3]);
+      console.log(MinFirst + " " + MinSecond); 
+      if((avgIndex[0] == 1 && avgIndex[1] == 2 || avgIndex[0] == 2 && avgIndex[1] == 1)&& avgs[0] < 25 && avgs[1] < 25){
           hallwayNum = 1;
-          var dist = hallOneLen - avgTwo;
-          if(dist < 0){
-            dist = 0;
+          if(avgs[0] < 3){
+            if(avgIndex[0] == 1){
+              hallLen = 0;
+              turning = 1;
+            }
+            else{
+              hallLen = 30;
+              turning = 1;
+            }
           }
-          hallLen = math.round((dist + avgOne)/2);
-          if(hallLen > hallOneLen){
-            hallLen = hallOneLen;
-          } 
-        }
+          else{
+            hallLen = 15;
+            turning = 0;
+          }
       }
-      else if(avgIndex[0] == 2 && avgIndex[1] == 1 && avgIndex[2] == 3){
-        var compLong = hallTwoLen-avgs[2];
-        var compShort = hallOneLen -avgs[1];
-        if(compLong > compShort){
-          hallwayNum = 2;
-          var dist = hallTwoLen - avgThree;
-          if(dist < 0){
-            dist = 0;
-          }
-          hallLen = math.round((dist + avgTwo)/2);
-          if(hallLen > hallTwoLen){
-            hallLen = hallTwoLen;
-          } 
-        }
-        else{
-          hallwayNum = 1;
-          var dist = hallOneLen - avgTwo;
-          if(dist < 0){
-            dist = 0;
-          }
-          hallLen = math.round((dist + avgOne)/2);
-          if(hallLen > hallOneLen){
-            hallLen = hallOneLen;
-          } 
-        }
-      }
-      else if(avgIndex[0] == 3 && avgIndex[1] == 4 && avgIndex[2] == 2){
-        var compLong = hallTwoLen-avgs[2];
-        var compShort = hallThreeLen -avgs[1];
-        if(compLong > compShort){
+      else if((avgIndex[0] == 3 && avgIndex[1] == 4 || avgIndex[0] == 4 && avgIndex[1] == 3)&& avgs[0] < 25 && avgs[1] < 25){
           hallwayNum = 3;
-          var dist = hallThreeLen - avgFour;
-          if(dist < 0){
-            dist = 0;
+          if(avgs[0] < 3){
+            if(avgIndex[0] == 3){
+              hallLen = 0;
+              turning = 1;
+            }
+            else{
+              hallLen = 30;
+              turning = 1;
+            }
           }
-          hallLen = math.round((dist + avgThree)/2);
-          if(hallLen > hallThreeLen){
-            hallLen = hallThreeLen;
-          } 
-        }
-        else{
-          hallwayNum = 2;
-          var dist = hallTwoLen - avgTwo;
-          if(dist < 0){
-            dist = 0;
+          else{
+            hallLen = 15;
+            turning - 0;
           }
-          hallLen = math.round((dist + avgThree)/2);
-          if(hallLen > hallTwoLen){
-            hallLen = hallTwoLen;
-          } 
-        }
       }
-      else if(avgIndex[0] == 4 && avgIndex[1] == 3 && avgIndex[2] == 1){
-        var compLong = hallFourLen-avgs[2];
-        var compShort = hallThreeLen -avgs[1];
-        if(compLong > compShort){
+      else if(avgIndex[0] == 4 || avgIndex[0] == 1){
           hallwayNum = 4;
-          var dist = hallFourLen - avgOne;
-          if(dist < 0){
-            dist = 0;
+          if(avgs[0] < 5){
+            if(avgIndex[0] == 4){
+              hallLen = 0;
+              turning = 1;
+            }
+            else{
+              hallLen = 100;
+              turning=1;
+            }
           }
-          hallLen = math.round((dist + avgFour)/2);
-          if(hallLen > hallFourLen){
-            hallLen = hallFourLen;
-          } 
-        }
-        else{
-          hallwayNum = 3;
-          var dist = hallThreeLen - avgThree;
-          if(dist < 0){
-            dist = 0;
+          else{
+            hallLen = 30;
+            turning = 0;
           }
-          hallLen = math.round((dist + avgFour)/2);
-          if(hallLen > hallThreeLen){
-            hallLen = hallThreeLen;
-          } 
-        }
-      } 
-      else if(avgIndex[1] == 1 && avgIndex[2]  == 2 || avgIndex[1] == 2 && avgIndex[2] == 1){
-        hallwayNum = 1;
-        var dist = hallOneLen - avgTwo;
-        if(dist < 0){
-          dist = 0;
-        }
-        hallLen = math.round((dist + avgOne)/2);
-        if(hallLen > hallOneLen){
-          hallLen = hallOneLen;
-        }
       }
-      else if (avgIndex[1] == 1 && avgIndex[2] == 4 || avgIndex[1] == 4 && avgIndex[2]  == 1){
-        hallwayNum = 4;
-        var dist = hallOneLen - avgOne;
-        if(dist < 0){
-          dist = 0;
-        }
-        hallLen = math.round((dist + avgFour)/2); 
-        if(hallLen > hallOneLen){
-          hallLen = hallOneLen;
-        }
-      }
-      else if (avgIndex[1] == 2 && avgIndex[2] == 3 || avgIndex[1] == 3 && avgIndex[2] == 2){
-        hallwayNum = 2;
-        var dist = hallOneLen - avgThree;
-        if(dist < 0){
-          dist = 0;
-        }
-        hallLen = math.round((dist + avgTwo)/2); 
-        if(hallLen > hallOneLen){
-          hallLen = hallOneLen;
-        }
-
-      }
-      else if (avgIndex[1] == 3 && avgIndex[2] == 4 || avgIndex[1] == 4 && avgIndex[2] == 3){
-        hallwayNum = 3;
-        var dist = hallOneLen - avgFour;
-        if(dist < 0){
-          dist = 0;
-        }
-        hallLen = math.round((dist + avgThree)/2); 
-        if(hallLen > hallOneLen){
-          hallLen = hallOneLen;
-        }
+      else if(avgIndex[0] == 2 || avgIndex[0] == 3){
+          hallwayNum = 2;
+          if(avgs[0] < 5){
+            if(avgIndex[0] == 2){
+              hallLen = 0;
+              turning = 1;
+            }
+            else{
+              hallLen = 100;
+              turning = 1;
+            }
+          }
+          else{
+            hallLen = 30;
+            turning = 0;
+          }
       }
       else{
         console.log("impossible location identified");
@@ -404,6 +267,10 @@ XBeeAPI.on("frame_object", function(frame) {
       console.log("Dist: " + hallLen);
       var posInfo = [hallwayNum,hallLen];
       io.emit('posUpdated',posInfo);
+      io.emit('turning',turning);
+      if(turning == 1){
+        console.log("TURN NOW");
+      }
     }
   //  var dist = math.pow(10,(-(rssi/20)-math.log((2.4*10^9),10)-(32.44/20)))*1000;
     //var dist = math.pow(10,(((10+rssi)-20*math.log(2.4*1000000000,10)-20*math.log((4*3.141596/(300000000)),10))/20))
