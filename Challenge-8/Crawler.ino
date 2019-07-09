@@ -160,8 +160,11 @@ void loop() {
   }
   
   //SHARP IR Sensor
-  float volts_front = analogRead(A5) * 0.0048828125; // value from sensor * (5/1024) - to convert to voltage, then use voltage to determine distance based on graph (next line) - if running 3.3.volts then change 5 to 3.3
-  float dist_front = 65 * pow(volts_front, -1.10);        // worked out from graph 65 = theretical distance / (1/Volts)S - luckylarry.co.uk
+  float volts_front = analogRead(A5) * 0.0048828125; 
+    // value from sensor * (5/1024) - to convert to voltage, then use voltage 
+    //to determine distance based on graph (next line) - if running 3.3.volts then change 5 to 3.3
+  float dist_front = 65 * pow(volts_front, -1.10);        
+    // worked out from graph 65 = theretical distance / (1/Volts)S - luckylarry.co.uk
   if (dist_front < 30) {
     //Serial.println(dist_front);
     esc.write(90);
